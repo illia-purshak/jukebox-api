@@ -1,0 +1,46 @@
+services:
+  jukebox_db:
+    restart: always
+    container_name: jukebox_db
+    image: postgres:17.5
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DATABASE}
+    volumes:
+      - data_pg:/var/lib/postgresql/data
+    ports:
+      - '5435:5432'
+    networks:
+      - jukebox_db
+    healthcheck:
+      test:
+        ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DATABASE}']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # pg_admin:
+  #   restart: always
+  #   container_name: second_spin_pgadmin
+  #   image: dpage/pgadmin4:latest
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: ${PGADMIN_LOGIN_EMAIL}
+  #     PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_LOGIN_PASSWORD}
+  #   depends_on:
+  #     jukebox_db:
+  #       condition: service_healthy
+  #   networks:
+  #     - jukebox_db
+  #   ports:
+  #     - '8083:80'
+  #   volumes:
+  #     - data_pgadmin:/var/lib/pgadmin
+
+volumes:
+  data_pg:
+  # data_pgadmin:
+
+networks:
+  jukebox_db:
+    driver: bridge
